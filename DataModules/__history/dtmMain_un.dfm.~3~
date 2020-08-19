@@ -1,0 +1,13 @@
+object dtmMain: TdtmMain
+  OldCreateOrder = False
+  Height = 348
+  Width = 492
+  object Connection: TFDConnection
+    Params.Strings = (
+      'Database=C:\Delphi\MultiThread_Download\DB.db'
+      'DriverID=SQLite')
+    LoginPrompt = False
+    Left = 208
+    Top = 56
+  end
+end

@@ -1,0 +1,25 @@
+unit dtmMain_un;
+
+interface
+
+uses
+  System.SysUtils, System.Classes;
+
+type
+  TdtmMain = class(TDataModule)
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+var
+  dtmMain: TdtmMain;
+
+implementation
+
+{%CLASSGROUP 'Vcl.Controls.TControl'}
+
+{$R *.dfm}
+
+end.
