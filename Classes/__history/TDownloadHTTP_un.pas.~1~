@@ -1,0 +1,15 @@
+unit TDownloadHTTP_un;
+
+interface
+
+type
+  TDownloadHTTP = class
+//    FIdHTTP
+    private
+
+    public
+
+  end;
+implementation
+
+end.

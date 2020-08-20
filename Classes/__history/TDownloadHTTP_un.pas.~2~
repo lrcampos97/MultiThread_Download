@@ -1,0 +1,21 @@
+unit TDownloadHTTP_un;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.ComCtrls, IdAntiFreezeBase, Vcl.IdAntiFreeze, IdBaseComponent, IdComponent,
+  IdTCPConnection, IdTCPClient, IdHTTP, IdIOHandler, IdIOHandlerStream,
+  IdIOHandlerSocket, IdIOHandlerStack, IdSSL, IdSSLOpenSSL;
+
+type
+  TDownloadHTTP = class
+//    FIdHTTP
+    private
+
+    public
+
+  end;
+implementation
+
+end.

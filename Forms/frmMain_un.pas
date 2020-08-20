@@ -4,7 +4,11 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
+  IdAntiFreezeBase, Vcl.IdAntiFreeze, IdBaseComponent, IdComponent,
+  IdTCPConnection, IdTCPClient, IdHTTP, IdIOHandler, IdIOHandlerStream,
+  IdIOHandlerSocket, IdIOHandlerStack, IdSSL, IdSSLOpenSSL,
+  dtmMain_un, Data.DB, Vcl.Grids, Vcl.DBGrids, TDownloadThread_un;
 
 type
   TfrmMain = class(TForm)
@@ -14,20 +18,41 @@ type
     tsPrincipal: TTabSheet;
     tsHistorico: TTabSheet;
     tsProgress: TPanel;
-    Label1: TLabel;
+    pnlButtons: TPanel;
+    Panel1: TPanel;
     edtURL: TEdit;
-    btnIniciarDownload: TButton;
-    Button1: TButton;
-    Button2: TButton;
-    btnVoltar: TButton;
+    Label1: TLabel;
+    btnHistorico: TButton;
     btnMensagem: TButton;
-    pnlProgress: TPanel;
-    ProgressBar1: TProgressBar;
+    btnPararDownload: TButton;
+    btnIniciarDownload: TButton;
+    pgbDownload: TProgressBar;
+    lblStatus: TLabel;
+    IdAntiFreeze: TIdAntiFreeze;
+    DBGrid1: TDBGrid;
+    FlowPanel1: TFlowPanel;
+    btnVoltar: TButton;
+    dsDownloads: TDataSource;
     procedure FormShow(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
+    procedure btnHistoricoClick(Sender: TObject);
     procedure btnVoltarClick(Sender: TObject);
+    procedure btnIniciarDownloadClick(Sender: TObject);
+    procedure btnPararDownloadClick(Sender: TObject);
+    procedure btnMensagemClick(Sender: TObject);
+    procedure IdHTTPWorkEnd(ASender: TObject; AWorkMode: TWorkMode);
+    procedure FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+    procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
+    FDownload: TDownloadThread;
+    FDadosDownloadAtual: TDadosDownload;
+
+    procedure SetarDadosDefaultDownload;
+    procedure FinalizarDownload(Sender: TObject);
+    procedure IniciarDownloadArquivos;
+    procedure AjustarControlesTela(aBaixando: boolean = false);
+    function DownloadEmAndamento: Boolean;
+
   public
     { Public declarations }
   end;
@@ -39,14 +64,105 @@ implementation
 
 {$R *.dfm}
 
+procedure TfrmMain.btnIniciarDownloadClick(Sender: TObject);
+begin
+  IniciarDownloadArquivos;
+end;
+
+procedure TfrmMain.btnMensagemClick(Sender: TObject);
+begin
+//  ShowMessage(TotalPorcentagemDownload(pgbDownload.Max, pgbDownload.Position));
+end;
+
 procedure TfrmMain.btnVoltarClick(Sender: TObject);
 begin
+  dtmMain.FecharDataSet;
   pgcMain.ActivePage := tsPrincipal;
 end;
 
-procedure TfrmMain.Button2Click(Sender: TObject);
+function TfrmMain.DownloadEmAndamento: Boolean;
 begin
+  Result := False;
+
+  if Assigned(FDownload) then
+  begin
+    Result := (not FDownload.Finished) and (not FDownload.Suspended);
+  end;
+end;
+
+procedure TfrmMain.btnPararDownloadClick(Sender: TObject);
+begin
+  if DownloadEmAndamento then
+  begin
+    FDownload.Suspend;
+    FDownload.Terminate;
+
+    Self.FinalizarDownload(Self);
+  end;
+end;
+
+procedure TfrmMain.AjustarControlesTela(aBaixando: boolean);
+begin
+  if aBaixando then
+  begin
+    btnIniciarDownload.Enabled := false;
+    btnPararDownload.Enabled := true;
+    btnMensagem.Enabled := true;
+    lblStatus.Caption := 'Baixando ...';
+  end
+  else
+  begin
+    btnIniciarDownload.Enabled := true;
+    btnPararDownload.Enabled := false;
+    btnMensagem.Enabled := false;
+    lblStatus.Caption := 'Baixando ...';
+  end;
+end;
+
+procedure TfrmMain.btnHistoricoClick(Sender: TObject);
+begin
+  dtmMain.CarregarDadosDownloads;
   pgcMain.ActivePage := tsHistorico;
+end;
+
+procedure TfrmMain.FinalizarDownload(Sender: TObject);
+begin
+  AjustarControlesTela;
+  pgbDownload.Position := 0;
+  lblStatus.Caption := 'Download Finalizado ...';
+
+  if FDadosDownloadAtual.Codigo <> -1 then
+  begin
+    dtmMain.AtualizarDataFim(FDadosDownloadAtual.Codigo);
+  end;
+
+  SetarDadosDefaultDownload;
+end;
+
+procedure TfrmMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
+var
+  xResultMessage: Integer;
+begin
+  if DownloadEmAndamento then
+  begin
+    xResultMessage := MessageDlg('Existe um download em andamento, deseja interrompe-lo?', mtConfirmation,[mbYes, mbNo],0);
+    if xResultMessage = mrNo then
+    begin
+      CanClose := False;
+    end
+    else if xResultMessage = mrYes then
+    begin
+      CanClose := True;
+    end;
+  end;
+end;
+
+procedure TfrmMain.FormDestroy(Sender: TObject);
+begin
+  if DownloadEmAndamento then
+  begin
+    Self.FDownload.Terminate; // garantia que sempre vai finalizar a thread
+  end;
 end;
 
 procedure TfrmMain.FormShow(Sender: TObject);
@@ -57,7 +173,47 @@ begin
 
   edtURL.Clear;
   edtURL.SetFocus;
-  pnlProgress.Visible := False;
+
+  AjustarControlesTela;
+  SetarDadosDefaultDownload;
+end;
+
+procedure TfrmMain.IdHTTPWorkEnd(ASender: TObject; AWorkMode: TWorkMode);
+begin
+  pgbDownload.Position := 0;
+  lblStatus.Caption := 'Download Finalizado com Sucesso ...';
+end;
+
+procedure TfrmMain.IniciarDownloadArquivos;
+begin
+  if edtUrl.Text = EmptyStr then
+  begin
+    ShowMessage('Necessário incluir a URL para download!');
+    edtURL.SetFocus;
+    Abort;
+  end
+  else
+  begin
+    AjustarControlesTela(true);
+
+    FDadosDownloadAtual.URL := Trim(edtURL.Text);
+    FDadosDownloadAtual.DataInicio := Now;
+
+    FDadosDownloadAtual.Codigo := dtmMain.AdicionarDownload(FDadosDownloadAtual);
+
+    Self.FDownload := TDownloadThread.Create(Self.pgbDownload, trim(edtURL.Text), FinalizarDownload);
+    Self.FDownload.Start;
+  end;
+end;
+
+
+
+procedure TfrmMain.SetarDadosDefaultDownload;
+begin
+  FDadosDownloadAtual.Codigo := -1;
+  FDadosDownloadAtual.URL := '';
+  FDadosDownloadAtual.DataInicio := 0;
+  FDadosDownloadAtual.DataFim := 0;
 end;
 
 end.

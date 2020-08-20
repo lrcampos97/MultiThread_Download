@@ -1,0 +1,85 @@
+unit TDownloadHTTP_un;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.ComCtrls, IdAntiFreezeBase, Vcl.IdAntiFreeze, IdBaseComponent, IdComponent,
+  IdTCPConnection, IdTCPClient, IdHTTP, IdIOHandler, IdIOHandlerStream,
+  IdIOHandlerSocket, IdIOHandlerStack, IdSSL, IdSSLOpenSSL, Vcl.Forms;
+
+type
+  TDownloadHTTP = class
+    private
+      FIdHTTP: TIdHTTP;
+      FIdAntiFreeze: TIdAntiFreeze;
+      FProgressBar: TProgressBar;
+      FUrl: String;
+
+      procedure ConfigurarHTTP;
+      procedure IdHTTPWorkBegin(ASender: TObject; AWorkMode: TWorkMode; AWorkCountMax: Int64);
+      procedure IdHTTPWork(ASender: TObject; AWorkMode: TWorkMode; AWorkCount: Int64);
+    public
+    constructor Create(aProgress: TProgressBar; aURL: String);
+    destructor Destroy; Override;
+
+    procedure BaixarArquivos;
+
+  end;
+implementation
+
+{ TDownloadHTTP }
+
+procedure TDownloadHTTP.BaixarArquivos;
+var
+  xFile: TStream;
+begin
+//    Self.FDownload := TDownloadThread.Create(Self.pgbDownload);
+//    Self.FDownload.Start;
+
+//  xFile := TFileStream.Create(ExpandFileName(ExtractFileDir(Application.ExeName) + '\Download_File' + ExtractFileExt()), fmcreate);
+  xFile := TFileStream.Create(ExpandFileName(ExtractFileDir(Application.ExeName) + '\Download_File' + ExtractFileExt(Self.FUrl)), fmcreate);
+  try
+    Self.FIdHTTP.Get(StringReplace(Self.FUrl,'https','http',[rfReplaceAll]), xFile); // não utilizar SSL
+
+  finally
+    FreeAndNil(xFile);
+  end;
+end;
+
+
+procedure TDownloadHTTP.IdHTTPWork(ASender: TObject; AWorkMode: TWorkMode;
+  AWorkCount: Int64);
+begin
+  Self.FProgressBar.Position := AWorkCount;
+end;
+
+procedure TDownloadHTTP.IdHTTPWorkBegin(ASender: TObject; AWorkMode: TWorkMode;
+  AWorkCountMax: Int64);
+begin
+  // Pegar tamanho do arquivo ao iniciar download.
+  Self.FProgressBar :=  AWorkCountMax;
+end;
+
+procedure TDownloadHTTP.ConfigurarHTTP;
+begin
+  Self.FIdHTTP :=  TIdHTTP.Create(nil);
+  Self.FIdHTTP.AllowCookies := True;
+  Self.FIdHTTP.HTTPOptions := [hoForceEncodeParams];
+end;
+
+constructor TDownloadHTTP.Create(aProgress: TProgressBar; aURL: String);
+begin
+  Self.FProgressBar := aProgress;
+  Self.FUrl := aURL;
+  Self.ConfigurarHTTP;
+end;
+
+destructor TDownloadHTTP.Destroy;
+begin
+  Self.FIdHTTP.Free;
+  Self.FProgressBar.Free;
+  inherited;
+end;
+
+end.
