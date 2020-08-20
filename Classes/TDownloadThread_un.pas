@@ -3,12 +3,12 @@ unit TDownloadThread_un;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
-  IdAntiFreezeBase, Vcl.IdAntiFreeze, IdBaseComponent, IdComponent,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls,
+  Vcl.ExtCtrls, IdAntiFreezeBase, Vcl.IdAntiFreeze, IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, IdHTTP, IdIOHandler, IdIOHandlerStream,
   IdIOHandlerSocket, IdIOHandlerStack, IdSSL, IdSSLOpenSSL,
-  dtmMain_un, Data.DB, Vcl.Grids, Vcl.DBGrids;
+  dtmMain_un, Data.DB, Vcl.Grids, Vcl.DBGrids, System.UITypes;
 
 type
 
@@ -19,20 +19,23 @@ type
     FIdHTTP: TIdHTTP;
     FURL: String;
     FFile: TStream;
+    FLabelStatus: TLabel;
 
     procedure ConfigurarHTTP;
-    procedure ThreadDone(Sender: TObject);
 
     // Utilizar os próprios métodos do componente para facilitar o cálculo
-    procedure IdHTTPWorkBegin(ASender: TObject; AWorkMode: TWorkMode; AWorkCountMax: Int64);
+    procedure IdHTTPWorkBegin(ASender: TObject; AWorkMode: TWorkMode;
+                              AWorkCountMax: Int64);
     procedure IdHTTPWork(ASender: TObject; AWorkMode: TWorkMode; AWorkCount: Int64);
+
     function TotalPorcentagemDownload(aValorMax, aValorAtual: Double): string;
-    procedure TerminatedSet; override;
+    function ExtractFileNameFromURL(aURL: String): String;
 
   public
-    constructor Create(AProgress: TProgressBar; aURL: String; aOnTerminate: TNotifyEvent); reintroduce;
+    constructor Create(AProgress: TProgressBar; aURL: String; aOnTerminate: TNotifyEvent; aLabelStatus: TLabel); reintroduce;
     procedure Execute; override;
     procedure SincronizarObjeto;
+    procedure TerminatedSet; override;
   end;
 
 implementation
@@ -48,11 +51,13 @@ begin
   Self.FIdHTTP.OnWork := Self.IdHTTPWork;
 end;
 
-constructor TDownloadThread.Create(AProgress: TProgressBar; aURL: String; aOnTerminate: TNotifyEvent);
+constructor TDownloadThread.Create(AProgress: TProgressBar; aURL: String;
+  aOnTerminate: TNotifyEvent; aLabelStatus: TLabel);
 begin
   inherited Create(True);
   Self.FreeOnTerminate := True; // liberar automaticamente minha thread;
   Self.OnTerminate := aOnTerminate;
+  Self.FLabelStatus := aLabelStatus;
 
   FProgress := AProgress;
   FUrl := aURL;
@@ -63,18 +68,35 @@ procedure TDownloadThread.Execute;
 begin
   inherited;
 
-  FFile := TFileStream.Create(ExpandFileName(ExtractFileDir(Application.ExeName) + '\Download_File' + ExtractFileExt(Self.FUrl)), fmcreate);
-
   try
+    FFile := TFileStream.Create(ExpandFileName(ExtractFileDir(Application.ExeName) +
+                              '\'+ ExtractFileNameFromURL(Self.FUrl)), fmcreate);
 
-    Self.FIdHTTP.Get(StringReplace(Self.FUrl,'https','http',[rfReplaceAll]), FFile); // não utilizar SSL
 
-  except
-    On E: Exception do
-    begin
-      MessageDlg('Erro ao realizar o download dos arquivos.' + sLineBreak + E.Message, mtError,[mbOK],0);
+    try
+
+      Self.FIdHTTP.Get(StringReplace(Self.FUrl,'https','http',[rfReplaceAll]),
+                                     FFile); // não utilizar SSL
+
+    except
+      On E: Exception do
+      begin
+        MessageDlg('Erro ao realizar o download dos arquivos.' + sLineBreak +
+                   E.Message, mtError,[mbOK],0);
+      end;
     end;
+  finally
+    Self.TerminatedSet;
   end;
+end;
+
+function TDownloadThread.ExtractFileNameFromURL(aURL: String): String;
+var
+  xPosition: Integer;
+begin
+  xPosition := LastDelimiter('/', aURL);
+
+  Result := copy(aURL, xPosition + 1, length(aURL));
 end;
 
 procedure TDownloadThread.IdHTTPWork(ASender: TObject; AWorkMode: TWorkMode;
@@ -93,6 +115,8 @@ end;
 procedure TDownloadThread.SincronizarObjeto;
 begin
   Self.FProgress.Position := Self.FPosition;
+  Self.FLabelStatus.Caption := Self.TotalPorcentagemDownload(Self.FProgress.Max,
+                                                             Self.FProgress.Position);
 end;
 
 procedure TDownloadThread.TerminatedSet;
@@ -105,14 +129,6 @@ begin
     FreeAndNil(FFile);
   end;
 
-  if Self.FIdHTTP.Connected then
-  begin
-    Self.FIdHTTP.Disconnect;
-  end;
-end;
-
-procedure TDownloadThread.ThreadDone(Sender: TObject);
-begin
   if Self.FIdHTTP.Connected then
   begin
     Self.FIdHTTP.Disconnect;

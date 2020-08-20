@@ -130,6 +130,14 @@ object frmMain: TfrmMain
             Height = 13
             Caption = 'Baixando ...'
           end
+          object lblPorcentagem: TLabel
+            Left = 80
+            Top = 59
+            Width = 17
+            Height = 13
+            Caption = '0%'
+            Visible = False
+          end
           object edtURL: TEdit
             Left = 17
             Top = 23

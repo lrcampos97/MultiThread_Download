@@ -36,7 +36,7 @@ type
   public
     { Public declarations }
     function AdicionarDownload(aDados: TDadosDownload): Integer;
-    procedure AtualizarDataFim(aDados: TDadosDownload);
+    procedure AtualizarDataFim(aCodigo: Integer);
     procedure CarregarDadosDownloads;
     procedure FecharDataSet;
 
@@ -70,9 +70,15 @@ begin
 
       Result := qryDownloadCODIGO.AsInteger;
     except
-      On  E: EDatabaseError do
+      on  E: EDatabaseError do
       begin
         MessageDlg('Erro ao incluir os dados no BD.' + sLineBreak + E.Message, mtError,[mbOK],0);
+        Abort;
+      end;
+
+      on E:Exception do
+      begin
+        MessageDlg('Erro: ' + sLineBreak + E.Message, mtError,[mbOK],0);
         Abort;
       end;
     end;
@@ -84,8 +90,36 @@ begin
   end;
 end;
 
-procedure TdtmMain.AtualizarDataFim(aDados: TDadosDownload);
+procedure TdtmMain.AtualizarDataFim(aCodigo: Integer);
 begin
+
+  if ConexaoAberta then
+  begin
+    try
+      qryDownload.Close;
+      qryDownload.Open;
+
+      if qryDownload.Locate('CODIGO',aCodigo,[]) then
+      begin
+        qryDownload.Edit;
+        qryDownloadDATAFIM.AsDateTime := Now;
+        qryDownload.Post;
+      end;
+    except
+
+      on  E: EDatabaseError do
+      begin
+        MessageDlg('Erro ao atualizar os dados no BD.' + sLineBreak + E.Message, mtError,[mbOK],0);
+        Abort;
+      end;
+
+      on E:Exception do
+      begin
+        MessageDlg('Erro: ' + sLineBreak + E.Message, mtError,[mbOK],0);
+        Abort;
+      end;
+    end;
+  end;
 
 end;
 
@@ -95,7 +129,7 @@ begin
   begin
     try
 
-      FecharDataSet
+      FecharDataSet;
       qryDownload.Open;
 
     except

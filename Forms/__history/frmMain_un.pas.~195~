@@ -33,6 +33,7 @@ type
     FlowPanel1: TFlowPanel;
     btnVoltar: TButton;
     dsDownloads: TDataSource;
+    lblPorcentagem: TLabel;
     procedure FormShow(Sender: TObject);
     procedure btnHistoricoClick(Sender: TObject);
     procedure btnVoltarClick(Sender: TObject);
@@ -71,7 +72,14 @@ end;
 
 procedure TfrmMain.btnMensagemClick(Sender: TObject);
 begin
-//  ShowMessage(TotalPorcentagemDownload(pgbDownload.Max, pgbDownload.Position));
+  if lblPorcentagem.Visible then
+  begin
+    lblPorcentagem.Visible := false;
+  end
+  else
+  begin
+    lblPorcentagem.Visible := true;
+  end;
 end;
 
 procedure TfrmMain.btnVoltarClick(Sender: TObject);
@@ -108,6 +116,7 @@ begin
     btnIniciarDownload.Enabled := false;
     btnPararDownload.Enabled := true;
     btnMensagem.Enabled := true;
+    lblStatus.Visible :=  True;
     lblStatus.Caption := 'Baixando ...';
   end
   else
@@ -115,7 +124,7 @@ begin
     btnIniciarDownload.Enabled := true;
     btnPararDownload.Enabled := false;
     btnMensagem.Enabled := false;
-    lblStatus.Caption := 'Baixando ...';
+    lblStatus.Visible :=  False;
   end;
 end;
 
@@ -130,6 +139,13 @@ begin
   AjustarControlesTela;
   pgbDownload.Position := 0;
   lblStatus.Caption := 'Download Finalizado ...';
+
+  if FDadosDownloadAtual.Codigo <> -1 then
+  begin
+    dtmMain.AtualizarDataFim(FDadosDownloadAtual.Codigo);
+  end;
+
+  SetarDadosDefaultDownload;
 end;
 
 procedure TfrmMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -138,7 +154,8 @@ var
 begin
   if DownloadEmAndamento then
   begin
-    xResultMessage := MessageDlg('Existe um download em andamento, deseja interrompe-lo?', mtConfirmation,[mbYes, mbNo],0);
+    xResultMessage := MessageDlg('Existe um download em andamento, deseja interrompe-lo?',
+                                 mtConfirmation,[mbYes, mbNo],0);
     if xResultMessage = mrNo then
     begin
       CanClose := False;
@@ -179,7 +196,6 @@ end;
 
 procedure TfrmMain.IniciarDownloadArquivos;
 begin
-
   if edtUrl.Text = EmptyStr then
   begin
     ShowMessage('Necessário incluir a URL para download!');
@@ -195,10 +211,10 @@ begin
 
     FDadosDownloadAtual.Codigo := dtmMain.AdicionarDownload(FDadosDownloadAtual);
 
-    Self.FDownload := TDownloadThread.Create(Self.pgbDownload, trim(edtURL.Text), FinalizarDownload);
+    Self.FDownload := TDownloadThread.Create(Self.pgbDownload, trim(edtURL.Text),
+                                             FinalizarDownload, lblPorcentagem);
     Self.FDownload.Start;
   end;
-
 end;
 
 
@@ -207,8 +223,8 @@ procedure TfrmMain.SetarDadosDefaultDownload;
 begin
   FDadosDownloadAtual.Codigo := -1;
   FDadosDownloadAtual.URL := '';
-  FDadosDownloadAtual.DataInicio := Null;
-  FDadosDownloadAtual.DataFim := Null;
+  FDadosDownloadAtual.DataInicio := 0;
+  FDadosDownloadAtual.DataFim := 0;
 end;
 
 end.

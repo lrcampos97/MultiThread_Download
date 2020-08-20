@@ -3,9 +3,9 @@ unit frmMain_un;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, Vcl.ExtCtrls,
-  IdAntiFreezeBase, Vcl.IdAntiFreeze, IdBaseComponent, IdComponent,
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes,
+  Vcl.Graphics, Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls,
+  Vcl.ExtCtrls, IdAntiFreezeBase, Vcl.IdAntiFreeze, IdBaseComponent, IdComponent,
   IdTCPConnection, IdTCPClient, IdHTTP, IdIOHandler, IdIOHandlerStream,
   IdIOHandlerSocket, IdIOHandlerStack, IdSSL, IdSSLOpenSSL,
   dtmMain_un, Data.DB, Vcl.Grids, Vcl.DBGrids, TDownloadThread_un;
@@ -33,6 +33,7 @@ type
     FlowPanel1: TFlowPanel;
     btnVoltar: TButton;
     dsDownloads: TDataSource;
+    lblPorcentagem: TLabel;
     procedure FormShow(Sender: TObject);
     procedure btnHistoricoClick(Sender: TObject);
     procedure btnVoltarClick(Sender: TObject);
@@ -47,6 +48,7 @@ type
     FDownload: TDownloadThread;
     FDadosDownloadAtual: TDadosDownload;
 
+    procedure SetarDadosDefaultDownload;
     procedure FinalizarDownload(Sender: TObject);
     procedure IniciarDownloadArquivos;
     procedure AjustarControlesTela(aBaixando: boolean = false);
@@ -70,7 +72,14 @@ end;
 
 procedure TfrmMain.btnMensagemClick(Sender: TObject);
 begin
-//  ShowMessage(TotalPorcentagemDownload(pgbDownload.Max, pgbDownload.Position));
+  if lblPorcentagem.Visible then
+  begin
+    lblPorcentagem.Visible := false;
+  end
+  else
+  begin
+    lblPorcentagem.Visible := true;
+  end;
 end;
 
 procedure TfrmMain.btnVoltarClick(Sender: TObject);
@@ -107,6 +116,7 @@ begin
     btnIniciarDownload.Enabled := false;
     btnPararDownload.Enabled := true;
     btnMensagem.Enabled := true;
+    lblStatus.Visible :=  True;
     lblStatus.Caption := 'Baixando ...';
   end
   else
@@ -114,7 +124,7 @@ begin
     btnIniciarDownload.Enabled := true;
     btnPararDownload.Enabled := false;
     btnMensagem.Enabled := false;
-    lblStatus.Caption := 'Baixando ...';
+    lblStatus.Visible :=  False;
   end;
 end;
 
@@ -129,6 +139,14 @@ begin
   AjustarControlesTela;
   pgbDownload.Position := 0;
   lblStatus.Caption := 'Download Finalizado ...';
+  lblPorcentagem.Visible := false;
+
+  if FDadosDownloadAtual.Codigo <> -1 then
+  begin
+    dtmMain.AtualizarDataFim(FDadosDownloadAtual.Codigo);
+  end;
+
+  SetarDadosDefaultDownload;
 end;
 
 procedure TfrmMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -137,7 +155,8 @@ var
 begin
   if DownloadEmAndamento then
   begin
-    xResultMessage := MessageDlg('Existe um download em andamento, deseja interrompe-lo?', mtConfirmation,[mbYes, mbNo],0);
+    xResultMessage := MessageDlg('Existe um download em andamento, deseja interrompe-lo?',
+                                 mtConfirmation,[mbYes, mbNo],0);
     if xResultMessage = mrNo then
     begin
       CanClose := False;
@@ -167,6 +186,7 @@ begin
   edtURL.SetFocus;
 
   AjustarControlesTela;
+  SetarDadosDefaultDownload;
 end;
 
 procedure TfrmMain.IdHTTPWorkEnd(ASender: TObject; AWorkMode: TWorkMode);
@@ -177,7 +197,6 @@ end;
 
 procedure TfrmMain.IniciarDownloadArquivos;
 begin
-
   if edtUrl.Text = EmptyStr then
   begin
     ShowMessage('Necessário incluir a URL para download!');
@@ -193,12 +212,21 @@ begin
 
     FDadosDownloadAtual.Codigo := dtmMain.AdicionarDownload(FDadosDownloadAtual);
 
-    Self.FDownload := TDownloadThread.Create(Self.pgbDownload, trim(edtURL.Text), FinalizarDownload);
+    // THREAD PARA BAIXAR OS ARQUIVOS
+    Self.FDownload := TDownloadThread.Create(Self.pgbDownload, trim(edtURL.Text),
+                                             FinalizarDownload, lblPorcentagem);
     Self.FDownload.Start;
   end;
-
 end;
 
 
+
+procedure TfrmMain.SetarDadosDefaultDownload;
+begin
+  FDadosDownloadAtual.Codigo := -1;
+  FDadosDownloadAtual.URL := '';
+  FDadosDownloadAtual.DataInicio := 0;
+  FDadosDownloadAtual.DataFim := 0;
+end;
 
 end.

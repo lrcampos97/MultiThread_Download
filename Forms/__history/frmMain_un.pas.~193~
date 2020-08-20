@@ -33,6 +33,7 @@ type
     FlowPanel1: TFlowPanel;
     btnVoltar: TButton;
     dsDownloads: TDataSource;
+    lblPorcentagem: TLabel;
     procedure FormShow(Sender: TObject);
     procedure btnHistoricoClick(Sender: TObject);
     procedure btnVoltarClick(Sender: TObject);
@@ -47,6 +48,7 @@ type
     FDownload: TDownloadThread;
     FDadosDownloadAtual: TDadosDownload;
 
+    procedure SetarDadosDefaultDownload;
     procedure FinalizarDownload(Sender: TObject);
     procedure IniciarDownloadArquivos;
     procedure AjustarControlesTela(aBaixando: boolean = false);
@@ -107,6 +109,7 @@ begin
     btnIniciarDownload.Enabled := false;
     btnPararDownload.Enabled := true;
     btnMensagem.Enabled := true;
+    lblStatus.Visible :=  True;
     lblStatus.Caption := 'Baixando ...';
   end
   else
@@ -114,7 +117,7 @@ begin
     btnIniciarDownload.Enabled := true;
     btnPararDownload.Enabled := false;
     btnMensagem.Enabled := false;
-    lblStatus.Caption := 'Baixando ...';
+    lblStatus.Visible :=  False;
   end;
 end;
 
@@ -129,6 +132,13 @@ begin
   AjustarControlesTela;
   pgbDownload.Position := 0;
   lblStatus.Caption := 'Download Finalizado ...';
+
+  if FDadosDownloadAtual.Codigo <> -1 then
+  begin
+    dtmMain.AtualizarDataFim(FDadosDownloadAtual.Codigo);
+  end;
+
+  SetarDadosDefaultDownload;
 end;
 
 procedure TfrmMain.FormCloseQuery(Sender: TObject; var CanClose: Boolean);
@@ -167,6 +177,7 @@ begin
   edtURL.SetFocus;
 
   AjustarControlesTela;
+  SetarDadosDefaultDownload;
 end;
 
 procedure TfrmMain.IdHTTPWorkEnd(ASender: TObject; AWorkMode: TWorkMode);
@@ -194,10 +205,17 @@ begin
 
     Self.FDownload := TDownloadThread.Create(Self.pgbDownload, trim(edtURL.Text), FinalizarDownload);
     Self.FDownload.Start;
-
   end;
 end;
 
 
+
+procedure TfrmMain.SetarDadosDefaultDownload;
+begin
+  FDadosDownloadAtual.Codigo := -1;
+  FDadosDownloadAtual.URL := '';
+  FDadosDownloadAtual.DataInicio := 0;
+  FDadosDownloadAtual.DataFim := 0;
+end;
 
 end.

@@ -14,6 +14,8 @@ object frmMain: TfrmMain
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
+  OnCloseQuery = FormCloseQuery
+  OnDestroy = FormDestroy
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -128,6 +130,13 @@ object frmMain: TfrmMain
             Height = 13
             Caption = 'Baixando ...'
           end
+          object lblPorcentagem: TLabel
+            Left = 80
+            Top = 59
+            Width = 17
+            Height = 13
+            Caption = '0%'
+          end
           object edtURL: TEdit
             Left = 17
             Top = 23
@@ -208,26 +217,6 @@ object frmMain: TfrmMain
         end
       end
     end
-  end
-  object IdHTTP: TIdHTTP
-    OnWork = IdHTTPWork
-    OnWorkBegin = IdHTTPWorkBegin
-    OnWorkEnd = IdHTTPWorkEnd
-    AllowCookies = True
-    ProxyParams.BasicAuthentication = False
-    ProxyParams.ProxyPort = 0
-    Request.ContentLength = -1
-    Request.ContentRangeEnd = -1
-    Request.ContentRangeStart = -1
-    Request.ContentRangeInstanceLength = -1
-    Request.Accept = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
-    Request.BasicAuthentication = False
-    Request.UserAgent = 'Mozilla/3.0 (compatible; Indy Library)'
-    Request.Ranges.Units = 'bytes'
-    Request.Ranges = <>
-    HTTPOptions = [hoForceEncodeParams]
-    Left = 352
-    Top = 24
   end
   object IdAntiFreeze: TIdAntiFreeze
     Left = 428

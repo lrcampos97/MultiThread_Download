@@ -8,7 +8,7 @@ uses
   FireDAC.Stan.Pool, FireDAC.Stan.Async, FireDAC.Phys, FireDAC.Phys.SQLite,
   FireDAC.Phys.SQLiteDef, FireDAC.Stan.ExprFuncs, Data.DB, FireDAC.Comp.Client,
   FireDAC.Stan.Param, FireDAC.DatS, FireDAC.DApt.Intf, FireDAC.DApt,
-  FireDAC.Comp.DataSet, FireDAC.VCLUI.Wait, FireDAC.Comp.UI;
+  FireDAC.Comp.DataSet, FireDAC.VCLUI.Wait, FireDAC.Comp.UI, System.UITypes;
 
 type
   TDadosDownload = record
@@ -99,7 +99,7 @@ begin
       qryDownload.Close;
       qryDownload.Open;
 
-      if qryDownload.Locate('CODIGO',aCodigo,[]) then
+      if qryDownload.Locate('CODIGO', aCodigo,[]) then
       begin
         qryDownload.Edit;
         qryDownloadDATAFIM.AsDateTime := Now;

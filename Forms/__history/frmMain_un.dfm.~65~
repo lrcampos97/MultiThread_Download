@@ -14,6 +14,8 @@ object frmMain: TfrmMain
   Font.Style = []
   OldCreateOrder = False
   Position = poMainFormCenter
+  OnCloseQuery = FormCloseQuery
+  OnDestroy = FormDestroy
   OnShow = FormShow
   PixelsPerInch = 96
   TextHeight = 13
@@ -127,6 +129,14 @@ object frmMain: TfrmMain
             Width = 59
             Height = 13
             Caption = 'Baixando ...'
+          end
+          object lblPorcentagem: TLabel
+            Left = 80
+            Top = 59
+            Width = 17
+            Height = 13
+            Caption = '0%'
+            Visible = False
           end
           object edtURL: TEdit
             Left = 17
