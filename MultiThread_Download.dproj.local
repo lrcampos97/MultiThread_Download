@@ -15,8 +15,8 @@
     <Transaction>2017/09/05 01:02:00.000.782,=C:\Users\Luiz Felipe Campos\Documents\Embarcadero\Studio\Projects\ServerMethodsUnit1.pas</Transaction>
     <Transaction>2017/09/05 01:02:00.000.899,=C:\Users\Luiz Felipe Campos\Documents\Embarcadero\Studio\Projects\WebModuleUnit1.pas</Transaction>
     <Transaction>2017/09/05 01:02:00.000.537,=C:\Users\Luiz Felipe Campos\Documents\Embarcadero\Studio\Projects\FormUnit1.pas</Transaction>
-    <Transaction>2017/09/19 00:27:12.000.854,=C:\Users\Luiz Felipe Campos\Documents\Embarcadero\Studio\Projects\ServerConst1.pas</Transaction>
     <Transaction>2017/09/19 00:27:12.000.628,=C:\Users\Luiz Felipe Campos\Documents\Embarcadero\Studio\Projects\ServerMethodsUnit1.pas</Transaction>
+    <Transaction>2017/09/19 00:27:12.000.854,=C:\Users\Luiz Felipe Campos\Documents\Embarcadero\Studio\Projects\ServerConst1.pas</Transaction>
     <Transaction>2017/09/19 00:27:12.000.756,=C:\Users\Luiz Felipe Campos\Documents\Embarcadero\Studio\Projects\WebModuleUnit1.pas</Transaction>
     <Transaction>2018/06/06 10:27:25.000.298,=C:\Users\Luiz Felipe Campos\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
     <Transaction>2018/08/06 10:29:55.000.791,=C:\Users\Luiz Felipe Campos\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
@@ -24,16 +24,19 @@
     <Transaction>2019/04/10 20:58:46.000.204,=C:\Users\Luiz Felipe Campos\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
     <Transaction>2019/04/10 21:00:54.000.871,=C:\Users\Luiz Felipe Campos\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
     <Transaction>2020/08/19 09:23:48.000.704,=C:\Users\Luiz Felipe Campos\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>2020/08/19 09:25:45.000.761,C:\Delphi\MultiThread_Download\Forms\frmMain_un.dfm=C:\Users\Luiz Felipe Campos\Documents\Embarcadero\Studio\Projects\Unit1.dfm</Transaction>
-    <Transaction>2020/08/19 09:25:45.000.761,C:\Delphi\MultiThread_Download\Forms\frmMain_un.pas=C:\Users\Luiz Felipe Campos\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>2020/08/19 09:26:08.000.475,C:\Delphi\MultiThread_Download\MultiThread_Download.dproj=C:\Users\Luiz Felipe Campos\Documents\Embarcadero\Studio\Projects\Project1.dproj</Transaction>
+    <Transaction>2020/08/19 09:25:45.000.761,C:\Users\Luiz Felipe Campos\Documents\Embarcadero\Studio\Projects\Unit1.pas=C:\Delphi\MultiThread_Download\Forms\frmMain_un.pas</Transaction>
+    <Transaction>2020/08/19 09:25:45.000.761,C:\Users\Luiz Felipe Campos\Documents\Embarcadero\Studio\Projects\Unit1.dfm=C:\Delphi\MultiThread_Download\Forms\frmMain_un.dfm</Transaction>
+    <Transaction>2020/08/19 09:26:08.000.475,C:\Users\Luiz Felipe Campos\Documents\Embarcadero\Studio\Projects\Project1.dproj=C:\Delphi\MultiThread_Download\MultiThread_Download.dproj</Transaction>
     <Transaction>2020/08/19 09:28:23.000.052,=C:\Delphi\MultiThread_Download\Unit1.pas</Transaction>
-    <Transaction>2020/08/19 09:40:23.000.693,C:\Delphi\MultiThread_Download\DataModules\dtmMain_un.dfm=C:\Delphi\MultiThread_Download\Unit1.dfm</Transaction>
-    <Transaction>2020/08/19 09:40:23.000.693,C:\Delphi\MultiThread_Download\DataModules\dtmMain_un.pas=C:\Delphi\MultiThread_Download\Unit1.pas</Transaction>
-    <Transaction>2020/08/19 15:49:31.121,=C:\Delphi\MultiThread_Download\Unit1.pas</Transaction>
-    <Transaction>2020/08/19 16:42:30.782,=C:\Delphi\MultiThread_Download\Unit1.pas</Transaction>
-    <Transaction>2020/08/19 16:46:34.462,C:\Delphi\MultiThread_Download\Classes\TDownloadHTTP_un.pas=C:\Delphi\MultiThread_Download\Unit1.pas</Transaction>
-    <Transaction>2020/08/19 18:53:40.073,=C:\Delphi\MultiThread_Download\Unit1.pas</Transaction>
+    <Transaction>2020/08/19 09:40:23.000.693,C:\Delphi\MultiThread_Download\Unit1.dfm=C:\Delphi\MultiThread_Download\DataModules\dtmMain_un.dfm</Transaction>
+    <Transaction>2020/08/19 09:40:23.000.693,C:\Delphi\MultiThread_Download\Unit1.pas=C:\Delphi\MultiThread_Download\DataModules\dtmMain_un.pas</Transaction>
+    <Transaction>2020/08/19 15:49:31.000.121,=C:\Delphi\MultiThread_Download\Unit1.pas</Transaction>
+    <Transaction>2020/08/19 16:42:30.000.782,=C:\Delphi\MultiThread_Download\Unit1.pas</Transaction>
+    <Transaction>2020/08/19 16:46:34.000.462,C:\Delphi\MultiThread_Download\Unit1.pas=C:\Delphi\MultiThread_Download\Classes\TDownloadHTTP_un.pas</Transaction>
+    <Transaction>2020/08/19 18:53:40.000.073,=C:\Delphi\MultiThread_Download\Unit1.pas</Transaction>
+    <Transaction>2020/08/20 11:48:57.061,C:\Delphi\MultiThread_Download\Classes\TDownloadHTTP_un.pas=</Transaction>
+    <Transaction>2020/08/20 14:17:10.383,=C:\Delphi\MultiThread_Download\Unit1.pas</Transaction>
+    <Transaction>2020/08/20 14:19:21.405,C:\Delphi\MultiThread_Download\Classes\TDownloadThread_un.pas=C:\Delphi\MultiThread_Download\Unit1.pas</Transaction>
   </Transactions>
 	<ActiveMobileDevice>
 		<NoProfile iOSSimulator="iPhone5" Android="1AG716C8J"/>
